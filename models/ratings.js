@@ -8,6 +8,17 @@ module.exports = function model(sequelize, types) {
         primarykey: true,
         unique: true,
       },
+      movie_id: {
+        type: types.UUID,
+        references: {
+          model: {
+            tableName: "movies",
+          },
+          key: "movie_id",
+        },
+        allowNull: false,
+        onDelete: "CASCADE",
+      },
       rating: {
         type: types.INTEGER,
         defaultValue: 0,
@@ -31,17 +42,5 @@ module.exports = function model(sequelize, types) {
     }
   );
 
-  ratings.associate = function (models) {
-    ratings.belongsTo(models.users, {
-      as: "user",
-      foreignKey: "user_id",
-      targetKey: "user_id",
-    });
-    ratings.belongsTo(models.items, {
-      as: "item",
-      foreignKey: "item_id",
-      targetKey: "item_id",
-    });
-  };
   return ratings;
 };

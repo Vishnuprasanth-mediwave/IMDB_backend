@@ -22,7 +22,7 @@ module.exports = {
         defaultValue: 0,
       },
       movie_id: {
-        type: typSequelizees.UUID,
+        type: Sequelize.UUID,
         references: {
           model: {
             tableName: "movies",

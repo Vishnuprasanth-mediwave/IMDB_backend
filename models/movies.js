@@ -35,6 +35,7 @@ module.exports = function model(sequelize, types) {
 
     {
       tableName: "movies",
+      timestamps: false,
     }
   );
   // Users.associate = function (models) {
