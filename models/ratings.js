@@ -41,6 +41,12 @@ module.exports = function model(sequelize, types) {
       timestamps: false,
     }
   );
-
+  ratings.associate = function (models) {
+    ratings.belongsTo(models.movies, {
+      as: "movie",
+      foreignKey: "movie_id",
+      targetKey: "movie_id",
+    });
+  };
   return ratings;
 };
