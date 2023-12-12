@@ -1,12 +1,16 @@
 module.exports = function model(sequelize, types) {
-  const ratings = sequelize.define(
+  const Ratings = sequelize.define(
     "ratings",
     {
       rating_id: {
         type: types.UUID,
         defaultValue: types.UUIDV4,
-        primarykey: true,
+        primaryKey: true,
         unique: true,
+      },
+      image: {
+        type: types.STRING,
+        allowNull: false,
       },
       movie_id: {
         type: types.UUID,
@@ -35,18 +39,25 @@ module.exports = function model(sequelize, types) {
         onDelete: "CASCADE",
       },
     },
-
     {
       tableName: "ratings",
       timestamps: false,
     }
   );
-  ratings.associate = function (models) {
-    ratings.belongsTo(models.movies, {
+
+  Ratings.associate = function (models) {
+    Ratings.belongsTo(models.movies, {
       as: "movie",
       foreignKey: "movie_id",
       targetKey: "movie_id",
     });
+
+    Ratings.belongsTo(models.users, {
+      as: "userRating",
+      foreignKey: "user_id",
+      targetKey: "user_id",
+    });
   };
-  return ratings;
+
+  return Ratings;
 };

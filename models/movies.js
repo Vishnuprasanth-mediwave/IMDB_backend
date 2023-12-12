@@ -10,6 +10,10 @@ module.exports = function model(sequelize, types) {
         primarykey: true,
         unique: true,
       },
+      image: {
+        type: types.STRING,
+        allowNull: false,
+      },
       movie_name: {
         type: types.STRING,
         allowNull: false,
@@ -38,13 +42,18 @@ module.exports = function model(sequelize, types) {
       timestamps: false,
     }
   );
+
   Movies.associate = function (models) {
     Movies.hasMany(models.ratings, {
       as: "ratings",
       foreignKey: "movie_id",
       sourceKey: "movie_id",
     });
+    Movies.belongsTo(models.users, {
+      as: "addedBy",
+      foreignKey: "user_id",
+      targetKey: "user_id",
+    });
   };
-
   return Movies;
 };

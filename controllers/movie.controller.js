@@ -1,4 +1,4 @@
-const { models, Sequelize } = require("../config/sequelize-config");
+const { models, Sequelize, sequelize } = require("../config/sequelize-config");
 const config = require("../config/config");
 const ratings = require("../models/ratings");
 
@@ -11,6 +11,7 @@ const addMovieController = async (req, res, next) => {
     if (searchMovie.length == 0) {
       const movieCreate = await models.movies.create({
         movie_name: req.body.movie_name,
+        image: req.body.image,
         release_year: req.body.release_year,
         movie_desc: req.body.movie_desc,
         user_id: req.decoded.user_id,
@@ -33,19 +34,17 @@ const addMovieController = async (req, res, next) => {
 const getAllMovieController = async (req, res, next) => {
   try {
     const getMovies = await models.movies.findAll({
-      include: [
-        {
-          model: models.ratings,
-          as: "ratings",
-          where: { movie_id: Sequelize.col("movies.movie_id") },
-        },
-      ],
-      logging: true,
+      attributes: ["movie_name", "release_year", "image"],
+      // include: [
+      //   {
+      //     model: models.ratings,
+      //     as: "ratings",
+      //     attributes: ["rating"],
+      //   },
+      // ],
     });
 
-    res.json({
-      getMovies,
-    });
+    res.json(getMovies);
   } catch (error) {
     return res.json({
       message: error.message,
@@ -54,10 +53,50 @@ const getAllMovieController = async (req, res, next) => {
 };
 const getMovieController = async (req, res, next) => {
   try {
-    const getMovie = await models.movies.findAll({});
+    const getMovie = await models.movies.findOne({
+      attributes: ["movie_name"],
+      where: req.body.movie_id,
+      include: [
+        {
+          model: models.ratings,
+          as: "ratings",
+          attributes: ["rating"],
+          include: [
+            {
+              model: models.users,
+              as: "userRating",
+              attributes: ["user_name"],
+            },
+          ],
+        },
+        {
+          model: models.users,
+          as: "addedBy",
+          attributes: ["user_name"],
+        },
+      ],
+      logging: true,
+    });
+
+    const ratings = getMovie.ratings.map((rating) => ({
+      rating: rating.rating,
+      ratedBy: rating.userRating.user_name,
+    }));
+
+    const overallRating = getMovie.ratings.length
+      ? getMovie.ratings.reduce((total, rating) => total + rating.rating, 0) /
+        getMovie.ratings.length
+      : 0;
+
+    const movieWithFormattedData = {
+      movieName: getMovie.movie_name,
+      addedBy: getMovie.addedBy.user_name,
+      ratings,
+      overallRating,
+    };
 
     res.json({
-      getMovie,
+      movieWithFormattedData,
     });
   } catch (error) {
     return res.json({
@@ -68,4 +107,5 @@ const getMovieController = async (req, res, next) => {
 module.exports = {
   addMovieController,
   getAllMovieController,
+  getMovieController,
 };

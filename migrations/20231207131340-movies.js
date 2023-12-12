@@ -11,6 +11,10 @@ module.exports = {
         autoIncrement: true,
         unique: true,
       },
+      image: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       movie_id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,

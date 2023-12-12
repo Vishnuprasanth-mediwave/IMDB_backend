@@ -70,13 +70,19 @@ module.exports = function model(sequelize, types) {
       tableName: "users",
     }
   );
-  // Users.associate = function (models) {
-  //   Users.hasMany(models.posts, {
-  //     as: "posts",
-  //     foreignKey: "userId",
-  //     sourceKey: "uuid",
-  //   });
-  // };
-
+  Users.associate = function (models) {
+    Users.hasMany(models.movies, {
+      as: "addedBy",
+      foreignKey: "user_id",
+      sourceKey: "user_id",
+    });
+  };
+  Users.associate = function (models) {
+    Users.hasMany(models.ratings, {
+      as: "userRating",
+      foreignKey: "user_id",
+      sourceKey: "user_id",
+    });
+  };
   return Users;
 };
