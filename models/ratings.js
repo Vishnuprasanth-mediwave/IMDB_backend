@@ -8,10 +8,7 @@ module.exports = function model(sequelize, types) {
         primaryKey: true,
         unique: true,
       },
-      image: {
-        type: types.STRING,
-        allowNull: false,
-      },
+
       movie_id: {
         type: types.UUID,
         references: {

@@ -18,7 +18,7 @@ movieRouter.post(
   addMovieController
 );
 movieRouter.get("/movies", getAllMovieController);
-movieRouter.get("/movies/m", getMovieController);
+movieRouter.get("/movies/:id", getMovieController);
 movieRouter.post(
   "/movie/rating",
   isAuthorised,

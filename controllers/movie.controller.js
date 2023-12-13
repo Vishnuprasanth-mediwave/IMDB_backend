@@ -35,16 +35,28 @@ const getAllMovieController = async (req, res, next) => {
   try {
     const getMovies = await models.movies.findAll({
       attributes: ["movie_name", "release_year", "image"],
-      // include: [
-      //   {
-      //     model: models.ratings,
-      //     as: "ratings",
-      //     attributes: ["rating"],
-      //   },
-      // ],
+      include: [
+        {
+          model: models.ratings,
+          as: "ratings",
+          attributes: ["rating"],
+        },
+      ],
+    });
+    const oneMoive = getMovies.map((m) => {
+      const overallRating = m.ratings.length
+        ? m.ratings.reduce((total, rating) => total + rating.rating, 0) /
+          m.ratings.length
+        : 0;
+      return {
+        movie_name: m.movie_name,
+        release_year: m.release_year,
+        image: m.image,
+        rating: overallRating,
+      };
     });
 
-    res.json(getMovies);
+    res.json(oneMoive);
   } catch (error) {
     return res.json({
       message: error.message,
@@ -55,7 +67,7 @@ const getMovieController = async (req, res, next) => {
   try {
     const getMovie = await models.movies.findOne({
       attributes: ["movie_name"],
-      where: req.body.movie_id,
+      where: { movie_id: req.params.id },
       include: [
         {
           model: models.ratings,
