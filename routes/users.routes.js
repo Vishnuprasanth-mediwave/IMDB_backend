@@ -18,7 +18,7 @@ userRouter.post("/signup", validate(signUpSchema), addUserController);
 
 userRouter.post("/login", validate(loginSchema), loginController);
 
-userRouter.get("/user/:id", isAuthorised, accountViewController);
+userRouter.get("/u", isAuthorised, accountViewController);
 
 userRouter.patch("/user/:id", validate(updateSchema), updateController);
 

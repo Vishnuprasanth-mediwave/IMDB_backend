@@ -88,15 +88,14 @@ const loginController = async (req, res, next) => {
 const accountViewController = async (req, res) => {
   try {
     const searchUser = await models.users.findOne({
+      attributes: ["first_name", "last_name", "user_name", "email", "phone_no"],
       where: {
         user_id: req.decoded.user_id,
       },
       logging: true,
     });
 
-    return res.json({
-      searchUser,
-    });
+    return res.json(searchUser);
   } catch (error) {
     console.log("\n error...", error);
     return res.json(error);
