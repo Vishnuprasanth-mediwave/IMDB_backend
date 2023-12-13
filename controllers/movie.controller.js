@@ -34,7 +34,7 @@ const addMovieController = async (req, res, next) => {
 const getAllMovieController = async (req, res, next) => {
   try {
     const getMovies = await models.movies.findAll({
-      attributes: ["movie_name", "release_year", "image"],
+      attributes: ["movie_id", "movie_name", "release_year", "image"],
       include: [
         {
           model: models.ratings,
@@ -49,6 +49,7 @@ const getAllMovieController = async (req, res, next) => {
           m.ratings.length
         : 0;
       return {
+        movie_id: m.movie_id,
         movie_name: m.movie_name,
         release_year: m.release_year,
         image: m.image,
