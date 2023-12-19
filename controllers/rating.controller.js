@@ -2,7 +2,7 @@ const { sequelize, models, Sequelize } = require("../config/sequelize-config");
 const addRatingController = async (req, res, next) => {
   try {
     const addRating = await models.ratings.create({
-      movie_id: req.body.movie_id,
+      movie_id: req.params.id,
       rating: req.body.rating,
       user_id: req.decoded.user_id,
     });

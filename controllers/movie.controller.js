@@ -33,7 +33,12 @@ const addMovieController = async (req, res, next) => {
 };
 const getAllMovieController = async (req, res, next) => {
   try {
+    const pageSize = parseInt(req.query.pagesize) || 3;
+    const page = parseInt(req.query.page) || 1;
+
     const getMovies = await models.movies.findAll({
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
       attributes: ["movie_id", "movie_name", "release_year", "image"],
       include: [
         {
@@ -43,7 +48,8 @@ const getAllMovieController = async (req, res, next) => {
         },
       ],
     });
-    const oneMoive = getMovies.map((m) => {
+
+    const oneMovie = getMovies.map((m) => {
       const overallRating = m.ratings.length
         ? m.ratings.reduce((total, rating) => total + rating.rating, 0) /
           m.ratings.length
@@ -57,13 +63,14 @@ const getAllMovieController = async (req, res, next) => {
       };
     });
 
-    res.json(oneMoive);
+    res.json(oneMovie);
   } catch (error) {
     return res.json({
       message: error.message,
     });
   }
 };
+
 const getMovieController = async (req, res, next) => {
   try {
     const getMovie = await models.movies.findOne({
