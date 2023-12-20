@@ -1,4 +1,5 @@
 const { models, Sequelize, sequelize } = require("../config/sequelize-config");
+const Op = Sequelize.Op;
 const config = require("../config/config");
 const ratings = require("../models/ratings");
 
@@ -32,14 +33,22 @@ const addMovieController = async (req, res, next) => {
   }
 };
 const getAllMovieController = async (req, res, next) => {
+  let whereQuery = {};
+
+  if (req.query.search) {
+    whereQuery.movie_name = {
+      [Op.iLike]: `%${req.query.search}%`,
+    };
+  }
   try {
     const pageSize = parseInt(req.query.pagesize) || 3;
     const page = parseInt(req.query.page) || 1;
 
-    const getMovies = await models.movies.findAll({
+    const { count, rows: movies } = await models.movies.findAndCountAll({
       limit: pageSize,
       offset: (page - 1) * pageSize,
       attributes: ["movie_id", "movie_name", "release_year", "image"],
+      where: whereQuery,
       include: [
         {
           model: models.ratings,
@@ -49,7 +58,7 @@ const getAllMovieController = async (req, res, next) => {
       ],
     });
 
-    const oneMovie = getMovies.map((m) => {
+    const oneMovie = movies.map((m) => {
       const overallRating = m.ratings.length
         ? m.ratings.reduce((total, rating) => total + rating.rating, 0) /
           m.ratings.length
@@ -63,7 +72,10 @@ const getAllMovieController = async (req, res, next) => {
       };
     });
 
-    res.json(oneMovie);
+    res.json({
+      totalMovies: count,
+      movies: oneMovie,
+    });
   } catch (error) {
     return res.json({
       message: error.message,

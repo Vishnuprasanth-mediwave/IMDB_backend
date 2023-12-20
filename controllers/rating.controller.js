@@ -1,6 +1,19 @@
 const { sequelize, models, Sequelize } = require("../config/sequelize-config");
 const addRatingController = async (req, res, next) => {
   try {
+    const searchUser = await models.ratings.findOne({
+      where: {
+        user_id: req.decoded.user_id,
+        movie_id: req.params.id,
+      },
+      logging: true,
+    });
+    if (searchUser != null) {
+      return next({
+        status: 403,
+        message: ["You already rated this movie"],
+      });
+    }
     const addRating = await models.ratings.create({
       movie_id: req.params.id,
       rating: req.body.rating,
