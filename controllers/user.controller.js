@@ -137,7 +137,7 @@ const updateController = async (req, res, next) => {
     }
   } catch (error) {
     return res.json({
-      message: error.errors.map((d) => d.message),
+      message: error,
     });
   }
 };

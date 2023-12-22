@@ -34,11 +34,14 @@ const addMovieController = async (req, res, next) => {
 };
 const getAllMovieController = async (req, res, next) => {
   let whereQuery = {};
-
+  let sort_name;
   if (req.query.search) {
     whereQuery.movie_name = {
       [Op.iLike]: `%${req.query.search}%`,
     };
+  }
+  if (req.query.movie_name) {
+    sort_name = req.query.movie_name;
   }
   try {
     const pageSize = parseInt(req.query.pagesize) || 3;
@@ -49,6 +52,7 @@ const getAllMovieController = async (req, res, next) => {
       offset: (page - 1) * pageSize,
       attributes: ["movie_id", "movie_name", "release_year", "image"],
       where: whereQuery,
+      order: [["movie_name", sort_name ? sort_name : "ASC"]],
       include: [
         {
           model: models.ratings,
