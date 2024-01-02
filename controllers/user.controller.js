@@ -60,7 +60,7 @@ const loginController = async (req, res, next) => {
           user_name: searchUser.user_name,
         };
         const gen_token = jwt.sign(payload, config.jwtSecret, {
-          expiresIn: "1h",
+          expiresIn: "1d",
         });
         const updateUser = await models.users.update(
           {

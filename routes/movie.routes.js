@@ -4,8 +4,12 @@ const {
   addMovieController,
   getAllMovieController,
   getMovieController,
+  updateMovieController,
 } = require("../controllers/movie.controller");
-const { addMovieSchema } = require("../validations/movie.schema");
+const {
+  addMovieSchema,
+  updateMovieSchema,
+} = require("../validations/movie.schema");
 const { isAuthorised } = require("../middlewares/authorisation.middleware");
 const { addRatingController } = require("../controllers/rating.controller");
 const { addRatingSchema } = require("../validations/rating.schema");
@@ -19,6 +23,12 @@ movieRouter.post(
 );
 movieRouter.get("/movies", getAllMovieController);
 movieRouter.get("/movies/:id", getMovieController);
+movieRouter.patch(
+  "/movies/:id",
+  isAuthorised,
+  validate(updateMovieSchema),
+  updateMovieController
+);
 movieRouter.post(
   "/movie/rating/:id",
   isAuthorised,

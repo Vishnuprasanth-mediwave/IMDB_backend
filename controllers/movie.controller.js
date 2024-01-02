@@ -53,6 +53,7 @@ const getAllMovieController = async (req, res, next) => {
       attributes: ["movie_id", "movie_name", "release_year", "image"],
       where: whereQuery,
       order: [["movie_name", sort_name ? sort_name : "ASC"]],
+      distinct: true,
       include: [
         {
           model: models.ratings,
@@ -148,8 +149,52 @@ const getMovieController = async (req, res, next) => {
     });
   }
 };
+const updateMovieController = async (req, res, next) => {
+  try {
+    const searchMovie = await models.movies.findOne({
+      where: { movie_id: req.params.id },
+    });
+    if (searchMovie === null) {
+      return next({
+        status: 400,
+        message: "Movie not found",
+      });
+    } else {
+      if (req.decoded.user_id !== searchMovie.user_id) {
+        return next({
+          status: 400,
+          message: "You cannot edit this movie",
+        });
+      } else {
+        const updateMovie = await models.movies.update(
+          {
+            movie_name: req.body.movie_name,
+            image: req.body.image,
+            release_year: req.body.release_year,
+            movie_desc: req.body.movie_desc,
+          },
+          {
+            where: {
+              movie_id: req.params.id,
+            },
+            returning: true,
+          }
+        );
+
+        res.json({
+          updateMovie,
+        });
+      }
+    }
+  } catch (error) {
+    return res.json({
+      message: error,
+    });
+  }
+};
 module.exports = {
   addMovieController,
   getAllMovieController,
   getMovieController,
+  updateMovieController,
 };
