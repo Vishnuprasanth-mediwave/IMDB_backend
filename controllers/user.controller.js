@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 const { models } = require("../config/sequelize-config");
 const config = require("../config/config");
 const helper = require("../services/helper");
+const { transporter, mailConfig } = require("../config/email-config");
+const otpGenerator = require("otp-generator");
+const { date } = require("joi");
 
 const addUserController = async (req, res, next) => {
   try {
@@ -141,9 +144,104 @@ const updateController = async (req, res, next) => {
     });
   }
 };
+const updatePasswordController = async (req, res, next) => {
+  try {
+    const searchUser = await models.users.findOne({
+      where: { user_id: req.decoded.user_id },
+    });
+
+    if (searchUser === null) {
+      return next({
+        status: 400,
+        message: "User not found",
+      });
+    } else {
+      const passwordMatch = await helper.comparePassword(
+        req.body.old_password,
+        searchUser.user_password
+      );
+
+      if (passwordMatch) {
+        const updatedPassword = await models.users.update(
+          {
+            user_password: req.body.new_password,
+          },
+          {
+            where: { user_id: req.decoded.user_id },
+            returning: true,
+            individualHooks: true,
+          }
+        );
+        res.json({
+          message: "Password Updated Successfully",
+        });
+      } else {
+        return next({
+          status: 400,
+          message: "Password Incorrect",
+        });
+      }
+    }
+  } catch (error) {
+    return next({
+      status: 400,
+      message: error.message,
+    });
+  }
+};
+const forgetPassword = async (req, res, next) => {
+  try {
+    const searchUser = await models.users.findOne({
+      attributes: ["user_id"],
+      where: { email: req.body.email },
+    });
+
+    const otp = otpGenerator.generate(6, {
+      digits: true,
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+    if (searchUser === null) {
+      return next({
+        status: 400,
+        message: "User not found",
+      });
+    } else {
+      const OtpEntry = await models.verificationtable.create({
+        verification_type: "forget",
+        otp: otp,
+        expiresAt: new Date().getTime() + 5 * 60000,
+        user_id: searchUser.user_id,
+      });
+      const options = {
+        from: `sender<${mailConfig.email}>`,
+        to: req.body.email,
+        subject: "forget password",
+        // text: 'test content', // plain text body
+        html: `<p>otp: ${otp} </p> `, // html body
+      };
+
+      transporter.sendMail(options, (error, info) => {
+        if (error) console.log("\n mail error..", error);
+        return console.log("\n success...", info);
+      });
+
+      return res.json("sending mail");
+    }
+  } catch (error) {
+    return next({
+      status: 400,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   addUserController,
   loginController,
   accountViewController,
   updateController,
+  updatePasswordController,
+  forgetPassword,
 };

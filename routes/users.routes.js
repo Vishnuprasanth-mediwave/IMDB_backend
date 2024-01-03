@@ -3,15 +3,19 @@ const {
   signUpSchema,
   updateSchema,
   loginSchema,
+  updatePasswordSchema,
 } = require("../validations/authentication.schema");
 const {
   addUserController,
   loginController,
   accountViewController,
   updateController,
+  updatePasswordController,
+  forgetPassword,
 } = require("../controllers/user.controller");
 const { validate } = require("../middlewares/validate.middleware");
 const { isAuthorised } = require("../middlewares/authorisation.middleware");
+const { transporter, mailConfig } = require("../config/email-config");
 const userRouter = express.Router();
 
 userRouter.post("/signup", validate(signUpSchema), addUserController);
@@ -26,5 +30,12 @@ userRouter.patch(
   validate(updateSchema),
   updateController
 );
+userRouter.put(
+  "/u/update/password",
+  isAuthorised,
+  validate(updatePasswordSchema),
+  updatePasswordController
+);
+userRouter.post("/forget/password", forgetPassword);
 
 module.exports = userRouter;

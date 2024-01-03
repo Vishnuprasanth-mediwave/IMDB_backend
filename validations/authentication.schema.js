@@ -11,7 +11,7 @@ const signUpSchema = Joi.object({
     .pattern(new RegExp("^[a-zA-Z0-9^_-]"))
     .required(),
   user_password: Joi.string()
-    .pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*_=+-]{8,20}$"))
+    .pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*_=+-]{8,}$"))
     .required(),
   phone_no: Joi.string().allow("").pattern(new RegExp("^[0-9]{7,15}$")),
 });
@@ -21,7 +21,7 @@ const loginSchema = Joi.object({
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .required(),
   user_password: Joi.string()
-    .pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*_=+-]{8,20}$"))
+    .pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*_=+-]{8,}$"))
     .required(),
 });
 
@@ -40,8 +40,16 @@ const updateSchema = Joi.object({
     .optional(),
   phone_no: Joi.string().optional().pattern(new RegExp("^[0-9]{7,15}$")),
 });
+const updatePasswordSchema = Joi.object({
+  old_password: Joi.string().required(),
+  new_password: Joi.string()
+    .min(8)
+    .pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*_=+-]{8,}$"))
+    .required(),
+});
 module.exports = {
   signUpSchema,
   loginSchema,
   updateSchema,
+  updatePasswordSchema,
 };
