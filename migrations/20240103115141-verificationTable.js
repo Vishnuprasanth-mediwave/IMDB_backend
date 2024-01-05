@@ -4,13 +4,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("verificationtable", {
-      id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true,
-        unique: true,
-      },
       verify_id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,

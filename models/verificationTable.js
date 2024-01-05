@@ -1,4 +1,3 @@
-const { DataTypes } = require("sequelize");
 module.exports = function model(sequelize, types) {
   const VerificationTable = sequelize.define(
     "verificationtable",
@@ -6,7 +5,7 @@ module.exports = function model(sequelize, types) {
       verify_id: {
         type: types.UUID,
         defaultValue: types.UUIDV4,
-        primarykey: true,
+        primaryKey: true,
         unique: true,
       },
       verification_type: {
@@ -18,7 +17,7 @@ module.exports = function model(sequelize, types) {
         allowNull: false,
       },
       expiresAt: {
-        type: types.INTEGER,
+        type: types.BIGINT,
         allowNull: false,
       },
       user_id: {

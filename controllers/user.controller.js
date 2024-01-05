@@ -189,7 +189,8 @@ const updatePasswordController = async (req, res, next) => {
     });
   }
 };
-const forgetPassword = async (req, res, next) => {
+const forgetPasswordContrller = async (req, res, next) => {
+  console.log(req.body.email);
   try {
     const searchUser = await models.users.findOne({
       attributes: ["user_id"],
@@ -214,20 +215,27 @@ const forgetPassword = async (req, res, next) => {
         expiresAt: new Date().getTime() + 5 * 60000,
         user_id: searchUser.user_id,
       });
-      const options = {
-        from: `sender<${mailConfig.email}>`,
-        to: req.body.email,
-        subject: "forget password",
-        // text: 'test content', // plain text body
-        html: `<p>otp: ${otp} </p> `, // html body
-      };
+      if (OtpEntry) {
+        const options = {
+          from: `sender<${mailConfig.email}>`,
+          to: req.body.email,
+          subject: "forget password",
+          // text: 'test content', // plain text body
+          html: `<p>otp: ${otp} </p> `, // html body
+        };
 
-      transporter.sendMail(options, (error, info) => {
-        if (error) console.log("\n mail error..", error);
-        return console.log("\n success...", info);
-      });
+        transporter.sendMail(options, (error, info) => {
+          if (error) console.log("\n mail error..", error);
+          return console.log("\n success...", info);
+        });
 
-      return res.json("sending mail");
+        return res.json(searchUser);
+      } else {
+        return next({
+          status: 400,
+          message: "Otp not created",
+        });
+      }
     }
   } catch (error) {
     return next({
@@ -243,5 +251,5 @@ module.exports = {
   accountViewController,
   updateController,
   updatePasswordController,
-  forgetPassword,
+  forgetPasswordContrller,
 };

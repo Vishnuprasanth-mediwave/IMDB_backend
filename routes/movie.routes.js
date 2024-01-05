@@ -5,6 +5,7 @@ const {
   getAllMovieController,
   getMovieController,
   updateMovieController,
+  deleteMovieController,
 } = require("../controllers/movie.controller");
 const {
   addMovieSchema,
@@ -29,6 +30,7 @@ movieRouter.patch(
   validate(updateMovieSchema),
   updateMovieController
 );
+movieRouter.delete("/movie/:id", isAuthorised, deleteMovieController);
 movieRouter.post(
   "/movie/rating/:id",
   isAuthorised,

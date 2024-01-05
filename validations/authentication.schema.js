@@ -47,9 +47,22 @@ const updatePasswordSchema = Joi.object({
     .pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*_=+-]{8,}$"))
     .required(),
 });
+const forgetPasswordSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required(),
+});
+const updateNewPasswordSchema = Joi.object({
+  new_password: Joi.string()
+    .min(8)
+    .pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*_=+-]{8,}$"))
+    .required(),
+});
 module.exports = {
   signUpSchema,
   loginSchema,
   updateSchema,
   updatePasswordSchema,
+  forgetPasswordSchema,
+  updateNewPasswordSchema,
 };

@@ -192,9 +192,43 @@ const updateMovieController = async (req, res, next) => {
     });
   }
 };
+const deleteMovieController = async (req, res, next) => {
+  try {
+    const getMovie = await models.movies.findOne({
+      where: { movie_id: req.params.id },
+    });
+    if (!getMovie) {
+      return next({
+        status: 400,
+        message: "Movie not found",
+      });
+    }
+    if (req.decoded.id !== getMovie.user_id) {
+      return next({
+        status: 403,
+        message: "You don't have access to this movie",
+      });
+    } else {
+      // const result = await sequelize.transaction(async () => {
+      const deleteMovie = await models.movies.destroy({
+        where: { id: req.params.id },
+        returning: true,
+      });
+
+      res.json({ deleteMovie });
+      // });
+    }
+  } catch (error) {
+    return next({
+      status: 400,
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   addMovieController,
   getAllMovieController,
   getMovieController,
   updateMovieController,
+  deleteMovieController,
 };
