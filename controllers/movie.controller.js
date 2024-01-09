@@ -10,16 +10,21 @@ const addMovieController = async (req, res, next) => {
       where: { movie_name: req.body.movie_name },
     });
     if (searchMovie.length == 0) {
-      const movieCreate = await models.movies.create({
-        movie_name: req.body.movie_name,
-        image: req.body.image,
-        release_year: req.body.release_year,
-        movie_desc: req.body.movie_desc,
-        user_id: req.decoded.user_id,
-      });
-      res.json({
-        movieCreate,
-      });
+      const image = req.file;
+      if (!image) {
+        return next({ status: 400, message: "upload file" });
+      } else {
+        const movieCreate = await models.movies.create({
+          movie_name: req.body.movie_name,
+          image: req.file.filename,
+          release_year: req.body.release_year,
+          movie_desc: req.body.movie_desc,
+          user_id: req.decoded.user_id,
+        });
+        res.json({
+          movieCreate,
+        });
+      }
     } else {
       return next({
         status: 400,
@@ -203,7 +208,7 @@ const deleteMovieController = async (req, res, next) => {
         message: "Movie not found",
       });
     }
-    if (req.decoded.id !== getMovie.user_id) {
+    if (req.decoded.user_id !== getMovie.user_id) {
       return next({
         status: 403,
         message: "You don't have access to this movie",
@@ -211,7 +216,7 @@ const deleteMovieController = async (req, res, next) => {
     } else {
       // const result = await sequelize.transaction(async () => {
       const deleteMovie = await models.movies.destroy({
-        where: { id: req.params.id },
+        where: { movie_id: req.params.id },
         returning: true,
       });
 
